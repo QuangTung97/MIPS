@@ -1,13 +1,13 @@
 .text
-.eqv malloc_ra 0
+.eqv sbrk_ra 0
 sbrk:
 	addi $sp, $sp, -4
-	sw $ra, malloc_ra($sp)
+	sw $ra, sbrk_ra($sp)
 	
 	li $v0, 9
 	syscall
 	
-	lw $ra, malloc_ra($sp)
+	lw $ra, sbrk_ra($sp)
 	addi $sp, $sp, 4
 	jr $ra
 	
