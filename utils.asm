@@ -1,24 +1,25 @@
 .text
+.eqv sbrk_stack_size 4
 .eqv sbrk_ra 0
 sbrk:
-	addi $sp, $sp, -4
+	addi $sp, $sp, -sbrk_stack_size
 	sw $ra, sbrk_ra($sp)
 	
 	li $v0, 9
 	syscall
 	
 	lw $ra, sbrk_ra($sp)
-	addi $sp, $sp, 4
+	addi $sp, $sp, sbrk_stack_size
 	jr $ra
 	
 .text 
-.eqv fr_ra	 -4
-.eqv fr_n 	0
+.eqv fr_ra -4
+.eqv fr_n 0
+.eqv fr_stack_size 8
 factorial_recursive:
-	# store n and $ra on stack
-	# offset 0: $ra
-	# offset -4: n = $s0
-	addi $sp, $sp, -8
+	# store
+	# n = $s0
+	addi $sp, $sp, -fr_stack_size
 	sw $ra, fr_ra($sp)
 	sw $s0, fr_n($sp)
 	move $s0, $a0
@@ -27,19 +28,19 @@ factorial_recursive:
 		bgt $s0, 1, fr_end_if # n > 1
 		# restore
 		lw $s0, fr_n($sp)
-		addi $sp, $sp, 8
+		addi $sp, $sp, fr_stack_size
 		li $v0, 1
 		jr $ra
 	fr_end_if:
 	# result = n * factorial_recursive(n - 1)
-	addi $a0, $s0,, -1	# n = n  - 1
+	addi $a0, $s0, -1	# n = n  - 1
 	jal factorial_recursive
 	mul $v0, $s0, $v0  	
 	
 	# restore
 	lw $s0, fr_n($sp)
 	lw $ra, fr_ra($sp)
-	addi $sp, $sp, 8
+	addi $sp, $sp, fr_stack_size
 	jr $ra
 
 .text
